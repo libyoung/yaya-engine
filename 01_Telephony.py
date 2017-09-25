@@ -51,42 +51,41 @@ sign_to_Email=["sign_to_Email","Open Email",OpenAPP("Email"),
 backto_contacts = NOT(FOR(4)({'text':'ALL CONTACTS', IsGone:2}, Back))
 
 test_call_from_contacts_3G =    [   'Test Call from Contacts in 3G Network',
-                                    'Launch contacts APP', OpenAPP('Contacts'),
-                                    'Select first contact', {"textContains": 'AT'},
-                                    'Dial contact phone', contacts_call,
-                                    'Check if the MDevice is incall status', IsInCall(8),
-                                    'Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
-                                    ThreeDevice(OpenAPP('Contacts')),
-                                    'Stay call connect 5s', InCallStay(5),
-                                    'MDevice end call',EndCall
+                                    '1.Launch contacts APP', OpenAPP('Contacts'),
+                                    '2.Select first contact', {"textContains": 'AT'},
+                                    '3.Dial contact phone', contacts_call,
+                                    '4.Check if the MDevice is incall status', IsInCall(8),
+                                    '5.Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
+                                    '6.Stay call connect 5s', InCallStay(5),
+                                    '7.MDevice end call',EndCall
                                 ]
 
 test_call_from_contacts_LTE =   [   'Test Call from Contacts in LTE Network',
-                                    'Launch contacts APP', OpenAPP('Contacts'),
-                                    'select first contact', {"textContains": 'AT'},
-                                    'Dial contact phone', contacts_call,
-                                    'check if the MDevice is incall status', IsInCall(8),
-                                    'Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
-                                    'Stay call connect 5s', InCallStay(5),
-                                    'MDevice end call',EndCall
+                                    '1.Launch contacts APP', OpenAPP('Contacts'),
+                                    '2.select first contact', {"textContains": 'AT'},
+                                    '3.Dial contact phone', contacts_call,
+                                    '4.check if the MDevice is incall status', IsInCall(8),
+                                    '5.Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
+                                    '6.Stay call connect 5s', InCallStay(5),
+                                    '7.MDevice end call',EndCall
                                 ]
 
 test_call_from_history_3G =     [   'Test Call from History in 3G Network',
-                                    'Launch call hostory', OpenAPP('Dialer'),
-                                    'Dial call', {'resourceId':'com.android.dialer:id/call_back_action'},
-                                    'Check if the MDevice is incall status', IsInCall(8),
-                                    'Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
-                                    'Stay call connect 5s', InCallStay(5),
-                                    'MDevice end call',EndCall
+                                    '1.Launch call hostory', OpenAPP('Dialer'),
+                                    '2.Dial call', {'resourceId':'com.android.dialer:id/call_back_action'},
+                                    '3.Check if the MDevice is incall status', IsInCall(8),
+                                    '4.Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
+                                    '5.Stay call connect 5s', InCallStay(5),
+                                    '6.MDevice end call',EndCall
                                 ]
 
 test_call_from_history_LTE =    [   "Test Call from History in LTE Network",
-                                    'Launch Dialer', OpenAPP('Dialer'),
-                                    'Dial call', {'resourceId':'com.android.dialer:id/call_back_action'},
-                                    'Check if the MDevice is incall status', IsInCall(8),
-                                    'Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
-                                    'Stay call connect 5s', InCallStay(5),
-                                    'MDevice end call', EndCall
+                                    '1.Launch Dialer', OpenAPP('Dialer'),
+                                    '2.Dial call', {'resourceId':'com.android.dialer:id/call_back_action'},
+                                    '3.Check if the MDevice is incall status', IsInCall(8),
+                                    '4.Switch SDevice and Answer Call', SDevice( IsRinging(10), CallAnswer ),
+                                    '5.Stay call connect 5s', InCallStay(5),
+                                    '6.MDevice end call', EndCall
                                 ]
 
 test_call_receive =             [   'Test Call Receive',

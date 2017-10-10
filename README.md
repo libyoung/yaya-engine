@@ -16,7 +16,7 @@ test_call_from_history_3G = [
      '3.验证是否有电话拨打出去', IsInCall(8),
      '4.辅测监听来电并接听', SDevice( IsRinging(10), CallAnswer ),
      '5.保持通话5秒中', InCallStay(5),
-     '6.住测挂断电话', EndCall
+     '6.主测挂断电话', EndCall
      ]
 ```
 

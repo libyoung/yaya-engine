@@ -14,7 +14,7 @@ test_call_from_history_3G = [
      '1.打开Phone App', OpenAPP('Dialer'),
      '2.点击第一条Call History记录的拨号按钮', {'resourceId':'com.android.dialer:id/call_back_action'},
      '3.验证是否有电话拨打出去', IsInCall(8),
-     '4.辅测监听来电并接听', SDevice( IsRinging(10), CallAnswer ),
+     '4.辅测监听来电并接听', SDevice[ IsRinging(10), CallAnswer ],
      '5.保持通话5秒中', InCallStay(5),
      '6.主测挂断电话', EndCall
      ]

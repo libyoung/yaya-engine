@@ -61,6 +61,7 @@ class CmdLineParser(object):
         self.parser.add_argument('-reco', help='specify "circle,modules,jsonfilename" to recover run, example : -reco 3,WiFi,20170817105358_TestData.json')
         self.parser.add_argument('-lsos', help='switch on/off the log stream output to system stdout, example : -lsos False')
         self.parser.add_argument('-estr', help='switch export Stability Test excel report from json file , example : -estr 201708132156465.json')
+        self.parser.add_argument('-acmp', help='switch on/off ANR and Crash monitor precess , example : -acmp False')
 
     def parse(self, input):
         return self.parser.parse_args(input)
@@ -128,14 +129,15 @@ def run_script(info, que=None):
                 LJson.SetCurrRunData(ModuleName=info['name'], TotalTimes=info['ttim'], Cricle=info['cuci'], CaseName='', SucessTimes=0)
                 run_f = Flow(que, info['mdev'], info['sdev'], info['3dev'], runinfo = info)
 
-                if m_ANR_p == None:
-                    m_ANR_p = create_monitor_ANR_Crash_process(info['mdev'])
-                if s_ANR_p == None:
-                    s_ANR_p = create_monitor_ANR_Crash_process(info['sdev'])
-                if three_ANR_p == None:
-                    three_ANR_p = create_monitor_ANR_Crash_process(info['3dev'])
-                if four_ANR_p == None:
-                    four_ANR_p = create_monitor_ANR_Crash_process(info['4dev'])
+                if info['acmp']:
+                    if m_ANR_p == None:
+                        m_ANR_p = create_monitor_ANR_Crash_process(info['mdev'])
+                    if s_ANR_p == None:
+                        s_ANR_p = create_monitor_ANR_Crash_process(info['sdev'])
+                    if three_ANR_p == None:
+                        three_ANR_p = create_monitor_ANR_Crash_process(info['3dev'])
+                    if four_ANR_p == None:
+                        four_ANR_p = create_monitor_ANR_Crash_process(info['4dev'])
 
                 run_f.Run(mod.run_list)
                 if que != None:
@@ -219,6 +221,13 @@ def cmd_progress(que):
             q = {}
         sys.stdout.flush()
 
+def string_to_bool(string):
+    if string in ( 'False', 'false', '假'.decode('utf-8'), 'None', None, 0 , '0'):
+        return False
+    else:
+        return True 
+
+
 def get_run_info(**custom_info):
     info={}
     #first, run info all data from "common.ini" file
@@ -231,22 +240,17 @@ def get_run_info(**custom_info):
     info['modu'] = cfg_get('common.ini', 'Run Info', 'modu')
     info['exce'] = cfg_get('common.ini', 'Run Info', 'exce')
     info['lsos'] = cfg_get('common.ini', 'Run Info', 'lsos')
-
+    info['acmp'] = cfg_get('common.ini', 'Run Info', 'acmp')
+    print info['acmp']
     #then, a part of run info data from commond line
     cmd_info = vars(CmdLineParser().parse(sys.argv[1:]))
     for item in cmd_info:
         if cmd_info[item] != None:
             info[item] = cmd_info[item]
 
-    if info['exce'] == 'False':
-        info['exce'] = False
-    else:
-        info['exce'] = True
-
-    if info['lsos'] == 'False':
-        info['lsos'] = False
-    else:
-        info['lsos'] = True
+    info['exce'] = string_to_bool(info['exce'])
+    info['lsos'] = string_to_bool(info['lsos'])
+    info['acmp'] = string_to_bool(info['acmp'])
 
     #last, a part of run info data from single script custom
     for item in custom_info:

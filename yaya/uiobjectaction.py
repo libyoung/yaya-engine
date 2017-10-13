@@ -12,6 +12,8 @@ import time
 
 U = uiautomator.U
 
+PRE_CHECK_UIOBJECT_TIME_MSEC = 10000
+
 def IsGone(flow, uiobject, timeout, *arg, **kword):
     flow.log.GetLogger().debug("wait %ss until gone" % timeout)
     if uiobject.wait.gone(timeout=timeout):
@@ -35,7 +37,7 @@ def __CheckExists__(obj):
     '''
     def __CheckExists_wrapper__(flow, uiobject, *arg, **kword):
         for i in xrange(6):
-            if uiobject.wait.exists(timeout=10000):
+            if uiobject.wait.exists(timeout=PRE_CHECK_UIOBJECT_TIME_MSEC):
                 return obj(flow, uiobject, *arg)
             elif flow.dm.GetRunDevice.watchers.triggered:
                 flow.dm.GetRunDevice.watchers.reset()
@@ -46,6 +48,7 @@ def __CheckExists__(obj):
         flow.log.GetLogger().debug("UIObject %s isn't exists!!!" , kword['selector_field'])
         return False
     return __CheckExists_wrapper__
+
 
 @__CheckExists__
 def Input(flow, uiobject, input_text_func, *arg):

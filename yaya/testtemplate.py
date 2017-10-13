@@ -13,6 +13,7 @@ from dump import Dump
 from devicemanage import *
 from log import *
 from logdatatojson import LJson
+from uiobjectaction import PRE_CHECK_UIOBJECT_TIME_MSEC
 
 def Setup(flow):
     """Setup"""
@@ -28,6 +29,7 @@ def Teardown(flow):
     LogFinish(flow)
     #mtel = util.tcget(tcname, 'MDEVICE')
     #mtel.switch_enhance_lte('on')
+
 
 class StabilityTestTemplate(object):
     '''
@@ -87,11 +89,18 @@ class CompareUIObjectInfo(object):
         '''
         '''
         def run_wrapper(flow):
-            self.value_dict['old'] = flow.dm.GetRunDevice(**self.select).info[self.info_fliter]
-            print self.value_dict['old']
+            uiobject = flow.dm.GetRunDevice(**self.select)
+            if uiobject.wait.exists(timeout=PRE_CHECK_UIOBJECT_TIME_MSEC):
+                self.value_dict['old'] = uiobject.info[self.info_fliter]
+            else:
+                flow.log.GetLogger().debug("UIObject %s isn't exists!!!" , self.select)
+                return False
             flow.Run(arg)
-            self.value_dict['new'] = flow.dm.GetRunDevice(**self.select).info[self.info_fliter]
-            print self.value_dict['new']
+            if uiobject.wait.exists(timeout=PRE_CHECK_UIOBJECT_TIME_MSEC):
+                self.value_dict['new'] = uiobject.info[self.info_fliter]
+            else:
+                flow.log.GetLogger().debug("UIObject %s isn't exists!!!" , self.select)
+                return False
             return self.__DiffValue__()
         return run_wrapper
 

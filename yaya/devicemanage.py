@@ -10,7 +10,7 @@ from uiautomator import Device
 from watcher import Watcher
 from log import *
 
-__all__ = ["SwitchSDevice","SwitchMDevice", "SwitchThreeDevice", "SwitchFourDevice","SDevice","MDevice", "ThreeDevice","FourDevice", "SwitchDevice", "DeviceManage"]
+__all__ = ["SwitchSDevice","SwitchMDevice","SwitchThreeDevice","SwitchFourDevice","SDevice","MDevice","ThreeDevice","FourDevice","SDevice2","MDevice2","ThreeDevice2","FourDevice2","SwitchDevice","DeviceManage"]
 
 def SwitchSDevice(flow):
     flow.log.GetLogger().debug("Switch SDevice")
@@ -62,12 +62,28 @@ class SwitchDeviceWrapper(object):
         else:
             return flow.Run((SwitchDevice(self.name), self.args, SwitchDevice(name)))
 
+class SwitchDeviceWrapper2(object):
+    '''
+    Switch Device
+    '''
+    def __init__(self, deviceclass):
+        self.deviceclass = deviceclass
+
+    def __getitem__(self, key):
+        if isinstance(key, tuple):
+            return self.deviceclass(*key)
+        else:
+            return self.deviceclass(key)
 
 MDevice = type("MDevice", (SwitchDeviceWrapper,), {"name": "MDevice"})
 SDevice = type("SDevice", (SwitchDeviceWrapper,), {"name": "SDevice"})
 ThreeDevice = type("ThreeDevice", (SwitchDeviceWrapper,), {"name": "ThreeDevice"})
 FourDevice = type("FourDevice", (SwitchDeviceWrapper,), {"name": "FourDevice"})
 
+MDevice2 = SwitchDeviceWrapper2(MDevice)
+SDevice2 = SwitchDeviceWrapper2(SDevice)
+ThreeDevice2 = SwitchDeviceWrapper2(ThreeDevice)
+FourDevice2 = SwitchDeviceWrapper2(FourDevice)
 
 class DeviceInfo(object):
     '''

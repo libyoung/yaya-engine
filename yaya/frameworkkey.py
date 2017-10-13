@@ -7,7 +7,7 @@
 #   Content:     Flow Object
 ##############################
 
-__all__ = ["FOR","SWITCH","SWITCHWrapper","WHILE",'NOT']
+__all__ = ["FOR","SWITCH","SWITCH2","SWITCHWrapper","SWITCHWrapper2","WHILE",'NOT']
 
 class FOR(object):
     '''
@@ -77,8 +77,32 @@ class SWITCHWrapper(object):
             self.args.append((key,))
         return self
 
+
+class SWITCHWrapper2(object):
+    '''
+    '''
+    def __init__(self, args):
+        self.args = args
+
+    def __call__(self, flow):
+        if self.args == None:
+            yield None
+        elif len(self.args) == 1: 
+            yield self.args[0]
+        else:
+            for item in self.args:
+                yield item
+
+    def __getitem__(self, key):
+        if isinstance(key, tuple):
+            self.args.append(key)
+        else:
+            self.args.append((key,))
+        return SWITCHWrapper2(self.args)
+
 SWITCH = SWITCHWrapper
 
+SWITCH2 = SWITCHWrapper2([])
 
 
 class NOT(object):

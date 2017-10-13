@@ -105,3 +105,14 @@ ENV/
 cfg/.DS_Store
 pre-cfg/.DS_Store
 yaya/.DS_Store
+
+# json
+*.json
+
+# scriptlog
+/scriptlog
+
+# screendump logdump
+/screendump
+/logdump
+

@@ -98,7 +98,7 @@ class Flow(object):
             pass
         elif isinstance(item,list) or isinstance(item, tuple):
             result = self.__RunFlow__(item)
-        elif isinstance(item, SWITCHWrapper):
+        elif isinstance(item, SWITCHWrapper) or isinstance(item, SWITCHWrapper):
             result = self.__SwitchFlow__(item(self))
         elif callable(item):
             #print("start time: %.5f" % time.time())

@@ -1,4 +1,7 @@
 # **yaya介绍**
+
+[![MIT License](https://img.shields.io/pypi/l/atx-uiautomator.svg)](http://opensource.org/licenses/MIT)
+
 yaya目前是一个基于Google UI Automator的android手机测试框架。
 The yaya is The Android Test Engine. Based on [atx-uiautomator](https://github.com/openatx/atx-uiautomator) in the current。
 
@@ -66,4 +69,8 @@ test_call_from_history_3G = [
     $ modify "mdev" and "sdev" to local device serial in the "[Run Info]"
 
     $ python run.py  
-
+    
+ 
+ ## License
+ 
+  [MIT LICENSE](LICENSE.txt)

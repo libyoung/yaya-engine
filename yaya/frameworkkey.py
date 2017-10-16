@@ -102,7 +102,7 @@ class SWITCHWrapper2(object):
 
 SWITCH = SWITCHWrapper
 
-SWITCH2 = SWITCHWrapper2([])
+#SWITCH2 = SWITCHWrapper2([])
 
 
 class NOT(object):

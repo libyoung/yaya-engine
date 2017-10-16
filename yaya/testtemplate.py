@@ -46,8 +46,8 @@ class StabilityTestTemplate(object):
         else:
             times = minitimes
 
-        return LJson.SetCurrRunDataInFlow(CaseName=caseName), FOR(times)(
-                    SWITCH()[
+        return LJson.SetCurrRunDataInFlow(CaseName=caseName), FOR(times)[
+                    SWITCH2[
                         NOT(*caseflow), 
                         Dump(flow.dm.runde), 
                         notsuccess_handler,
@@ -55,7 +55,7 @@ class StabilityTestTemplate(object):
                     [
                         Passes, Wait(5)
                     ]
-                ), SwitchMDevice
+        ], SwitchMDevice
 
     def __call__(self, flow):
         '''

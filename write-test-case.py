@@ -9,16 +9,16 @@ test_press_all_key = [
     "验证拨号盘中各按键输入",
     "1.进入电话", OpenAPP("Dialer"),
     "2.打开拨号盘", 
-    SWITCH2[{'resourceId':'com.android.dialer:id/floating_action_button'}]
+    SWITCH2[{'resourceId':'com.android.dialer:id/floatingssdfsdfsd_action_button'}]
            [ Home, OpenAPP("Dialer")],
-    "3.点击键盘上的所有按键进行输入",
+    SWITCH2["3.点击键盘上的所有按键进行输入"],
     {"text":"1"},{"text":"2"},{"text":"3"},
     {"text":"4"},{"text":"5"},{"text":"6"},
     {"text":"7"},{"text":"8"},{"text":"9"},
     {"text":"*"},{"text":"0"},{"text":"#"},
     {"text":"0",LongClick:2},
-    SDevice2[ OpenAPP('Dialer'), Home, Recent],
-    SDevice2[ OpenAPP('Setting'), Home, Recent],
+    #SDevice2[ OpenAPP('Dialer'), Home, Recent],
+    #SDevice2[ OpenAPP('Setting'), Home, Recent],
     "验证：所有按键均能正常在拨号盘中输入", CheckExists(textContains="123456789*0#+"),
 ]
 

@@ -15,15 +15,38 @@ class FOR(object):
     '''
     def __init__(self, times = 1, *args, **kwargs):
         self.times = times
-        self.args = args
-        self.kwargs = kwargs
+        self.steps = []
 
-    def __call__(self, *args, **kwargs):
-        def FORGenerator(flow):
-            if self.times > 0:
-                for i in xrange(self.times):
-                    yield args
-        return FORGenerator
+    def __getitem__(self, steps):
+        if isinstance(steps, tuple):
+            self.steps.append(steps)
+        else:
+            self.steps.append((steps,))
+        return FORWrapper(self.times, self.steps)
+
+class FORWrapper(object):
+    '''
+    Framework FOR Key
+    '''
+    def __init__(self, times, steps):
+        self.times = times
+        self.steps = steps
+
+    def steps_gene(self):
+        if self.times > 0:
+            for i in xrange(self.times):
+                yield self.steps
+
+    def FlowAction(self, flow):
+        '''
+        Operate for circulation with generator
+        '''
+        result = False
+        for item in self.steps_gene():
+            result = flow.Run(item)
+            if not result:
+                break
+        return result
 
 
 class WHILE(object):
@@ -59,46 +82,59 @@ class SWITCHWrapper(object):
     Framework SWITCH Key
     '''
     def __init__(self):
-        self.args = []
+        self.steps = []
 
-    def __call__(self, flow):
-        if self.args == None:
-            yield None
-        elif len(self.args) == 1: 
-            yield self.args[0]
-        else:
-            for item in self.args:
-                yield item
-
-    def __getitem__(self,key):
-        if isinstance(key, tuple):
-            self.args.append(key)
-        else:
-            self.args.append((key,))
-        return self
-
-
-class SWITCHWrapper2(object):
-    '''
-    '''
-    def __init__(self, args):
-        self.args = args
-
-    def __call__(self, flow):
-        if self.args == None:
-            yield None
-        elif len(self.args) == 1: 
-            yield self.args[0]
-        else:
-            for item in self.args:
-                yield item
+    def steps_gene(self):
+        for item in self.steps:
+            yield item
 
     def __getitem__(self, key):
         if isinstance(key, tuple):
-            self.args.append(key)
+            self.steps.append(key)
         else:
-            self.args.append((key,))
-        return SWITCHWrapper2(self.args)
+            self.steps.append((key,))
+        return self
+
+    def FlowAction(self, flow):
+        '''
+        '''
+        result = True
+        for item in self.steps_gene():
+            if flow.Run(item[0]):
+                result = flow.Run(item[1:])
+                break
+        return result
+
+
+class SWITCHWrapper2(SWITCHWrapper):
+    '''
+    '''
+    def __init__(self, steps):
+        self.steps = list(steps)
+
+    def steps_gene(self):
+        '''
+        '''
+        if self.steps == None:
+            yield None
+        elif len(self.steps) == 1: 
+            yield self.steps[0]
+        else:
+            for item in self.steps:
+                yield item
+
+    def __getitem__(self, key):
+        '''
+        '''
+        if isinstance(key, tuple):
+            self.steps.append(key)
+        else:
+            self.steps.append((key,))
+
+        new_sw = SWITCHWrapper2(self.steps)
+        self.steps = []
+        return new_sw
+
 
 SWITCH = SWITCHWrapper
 
@@ -108,10 +144,36 @@ SWITCH2 = SWITCHWrapper2([])
 class NOT(object):
     '''
     '''
-    def __init__(self, *arg):
-        self.args = arg
+    def __init__(self, *steps):
+        self.steps = steps
 
+    def args_gene(self):
+        '''
+        '''
+        if self.steps == None:
+            yield None
+        elif len(self.steps) == 1: 
+            yield self.steps[0]
+        else:
+            for item in self.steps:
+                yield item
+
+    def FlowAction(self, flow):
+        '''
+        '''
+        for item in self.args_gene(): 
+            result = flow.Run(item)
+            if not result:
+                return True
+        return False
 
 if __name__ == "__main__":
-    b = SWITCH("dfdf")
-    print b("dd")
+    print id(SWITCH2)
+    b = SWITCH2["dfdf"]["ddd"]
+    print id(b)
+    print 'sdfsd'
+    print id(SWITCH2)
+    c = SWITCH2["123"][123]
+    print id(c)
+
+    print "end"

@@ -241,7 +241,7 @@ def get_run_info(**custom_info):
     info['exce'] = cfg_get('common.ini', 'Run Info', 'exce')
     info['lsos'] = cfg_get('common.ini', 'Run Info', 'lsos')
     info['acmp'] = cfg_get('common.ini', 'Run Info', 'acmp')
-    print info['acmp']
+
     #then, a part of run info data from commond line
     cmd_info = vars(CmdLineParser().parse(sys.argv[1:]))
     for item in cmd_info:
@@ -264,6 +264,8 @@ def get_run_info(**custom_info):
 def main(**custom_info):
     '''
     '''
+    share_que = None
+
     try:
         #print "process group id: %s" % os.getpgrp()
         #print "master process id: %s" % os.getpid()
@@ -274,13 +276,12 @@ def main(**custom_info):
         if info.get('estr'):
             write_data_to_xlsx_file(*(info['estr'].split(',')))
             return None
-        
-        share_que = Queue()
 
         #run_p= Process(target = run_script_2, args=(MD,SD,share_que, loops, mode))
         #run_p.start()
 
         if not info.get('lsos'):
+            share_que = Queue()
             probar_p = Process(target = cmd_progress, args=(share_que,))
             probar_p.daemon = True
             probar_p.start()

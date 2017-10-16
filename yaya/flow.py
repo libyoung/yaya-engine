@@ -94,20 +94,15 @@ class Flow(object):
         '''
         '''
         result = True
-        if item == None or item == [] or item == {} or item == '':
-            pass
+        if item == False:
+            result = False
         elif isinstance(item,list) or isinstance(item, tuple):
             result = self.__RunFlow__(item)
-        elif isinstance(item, SWITCHWrapper) or isinstance(item, SWITCHWrapper):
-            result = self.__SwitchFlow__(item(self))
         elif callable(item):
             #print("start time: %.5f" % time.time())
             result = item(self)
             time.sleep(0.2)
             result = self.Run(result)
-        elif hasattr(item, "next"):
-            result = self.__ForFlow__(item)
-            #print("Finish time: %.5f" % time.time())
         elif isinstance(item, dict):
             #print("Start time: %.5f" % time.time())
             result = self.__RunStep__(item, self.dm.GetRunDevice)
@@ -115,11 +110,11 @@ class Flow(object):
             #print("Finish time: %.5f" % time.time())
         elif isinstance(item, str) or isinstance(item, unicode):
             self.log.GetLogger().info(item)
-        elif isinstance(item, NOT):
-            result = self.__NotFlow__(item)
+        elif hasattr(item, "FlowAction"):
+            result = item.FlowAction(self)
+            #print("Finish time: %.5f" % time.time())
         else:
-            if not item:
-                result = False
+            pass
         return result
 
     def __RunStep__(self, kwargs, device = None):
@@ -172,33 +167,3 @@ class Flow(object):
                 if not result:
                     return False
         return True
-
-    def __ForFlow__(self, gene):
-        '''
-        Operate for circulation with generator
-        '''
-        result = False
-        for item in gene:
-            result = self.Run(item)
-            if not result:
-                break
-        return result
-
-    def __SwitchFlow__(self, gene):
-        '''
-        '''
-        result = True
-        for item in gene:
-            if self.Run(item[0]):
-                result = self.Run(item[1:])
-                break
-        return result
-
-    def __NotFlow__(self, gene):
-        '''
-        '''
-        for item in gene.args:
-            result = self.Run(item)
-            if not result:
-                return True
-        return False

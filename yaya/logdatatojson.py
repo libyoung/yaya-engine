@@ -31,6 +31,7 @@ import datetime
 #                               "SuccessRate" : "90.00%",
 #                               "PerCricleSucessTimes" : [299,300,300,280],
 #                               "PerCricleRunTime" : ["2:35:34", "2:40:45","2:39:56","2:50:12"],
+#                                "FailCase": { "CaseName" : "FailTimes" ,"CaseName2" : "FailTimes2" }
 #                           },
 #                           {
 #                               "ModuleName": "Telephony",
@@ -38,6 +39,7 @@ import datetime
 #                               "SuccessRate" : 90.00%",
 #                               "PerCricleSucessTimes" : [299,300,300,280],
 #                               "PerCricleRunTime" : ["2:35:34", "2:40:45","2:39:56","2:50:12"],
+#                                "FailCase": { "CaseName" : "FailTimes" ,"CaseName2" : "FailTimes2" }
 #                           },
 #                           {
 #                               "ModuleName": "Telephony",
@@ -45,6 +47,7 @@ import datetime
 #                               "SuccessRate" : 90.00%",
 #                               "PerCricleSucessTimes" : [299,300,300,280],
 #                               "PerCricleRunTime" : ["2:35:34", "2:40:45","2:39:56","2:50:12"],
+#                                "FailCase": { "CaseName" : "FailTimes" ,"CaseName2" : "FailTimes2" }
 #                           }, 
 #                           .
 #                           .
@@ -59,12 +62,11 @@ class LogDataToJson(object):
         self.data["PlanType"] = "Stability UIautomator"
         self.data["PlanName"] = "Android Stationl"
         self.data["SWVersion"] = "Phone SW version"
-        self.data["PlanCricle"] = 10
+        self.data["PlanCricle"] = 0
         self.data["RunStatus"] = "Ready"
         self.data["TimeStamp"] = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         self.data["CurrRunData"] = {}
         self.data["ModuleData"] = []
-        self._fields = ["PlanType","PlanName","SWVersion","PlanCricle","TimeStamp","CurrCricle","CurrModule","ModuleData"]
         self.jsonfilename = self.data["TimeStamp"] + "_" + "TestData.json"
 
     def InitModuleData(self, modules):
@@ -77,7 +79,7 @@ class LogDataToJson(object):
                 return item
         return None
 
-    def AddModuleData(self, modulename, totaltimes, sucesstimes, runtime, cricle=1):
+    def AddModuleData(self, modulename, totaltimes, sucesstimes, runtime, fail_cases,cricle=1):
         for item in self.data["ModuleData"]:
             if modulename == item["ModuleName"]:
                 item["TotalTimes"] = totaltimes
@@ -89,7 +91,23 @@ class LogDataToJson(object):
                     item["PerCricleRunTime"].append(runtime)
                 else:
                     item["PerCricleRunTime"][cricle-1] = runtime
-                item["SuccessRate"] = "%0.2f%%" % (sum(item["PerCricleSucessTimes"]) / (len(item["PerCricleSucessTimes"]) * item["TotalTimes"]) * 100 )
+                item["SuccessRate"] = "%0.2f%%" % ( 1.0 * sum(item["PerCricleSucessTimes"]) / (len(item["PerCricleSucessTimes"]) * item["TotalTimes"]) * 100 )
+                item['FailCase'] = fail_cases
+
+    def UpdateModuleData(self, modulename, totaltimes, sucesstimes, runtime, fail_cases,cricle=1):
+        for item in self.data["ModuleData"]:
+            if modulename == item["ModuleName"]:
+                item["TotalTimes"] = totaltimes
+                if len(item["PerCricleSucessTimes"]) < cricle:
+                    item["PerCricleSucessTimes"].append(sucesstimes)
+                else:
+                    item["PerCricleSucessTimes"][cricle-1] = sucesstimes
+                if len(item["PerCricleRunTime"]) < cricle:
+                    item["PerCricleRunTime"].append(runtime)
+                else:
+                    item["PerCricleRunTime"][cricle-1] = runtime
+                item["SuccessRate"] = "%0.2f%%" % (1.0 * sum(item["PerCricleSucessTimes"]) / (len(item["PerCricleSucessTimes"]) * item["TotalTimes"]) * 100 )
+                item['FailCase'] = fail_cases
 
     def SetPlanData(self, key, value):
         self.data[key] = value
@@ -124,9 +142,13 @@ class LogDataToJson(object):
     def JsonLoadFromFile(self, filename):
         with open(filename , "rb") as fb:
             self.data = json.load(fb)
-        self.jsonfilename = filename
+        self.SetJsonFileName(filename)
 
     def GetJsonFileName(self):
         return self.jsonfilename
+
+    def SetJsonFileName(self, filename):
+        self.jsonfilename = filename
+
 
 LJson = LogDataToJson()

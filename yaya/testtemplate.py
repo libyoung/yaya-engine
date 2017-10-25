@@ -14,6 +14,8 @@ from devicemanage import *
 from log import *
 from logdatatojson import LJson
 from uiobjectaction import PRE_CHECK_UIOBJECT_TIME_MSEC
+import json
+import importlib
 
 def Setup(flow):
     """Setup"""
@@ -49,6 +51,7 @@ class StabilityTestTemplate(object):
         return LJson.SetCurrRunDataInFlow(CaseName=caseName), FOR(times)(
                     SWITCH()[
                         NOT(*caseflow), 
+                        Failes(caseName),
                         Dump(flow.dm.runde), 
                         notsuccess_handler,
                     ]
@@ -66,6 +69,48 @@ class StabilityTestTemplate(object):
         runflow.append(self.teardown)
         runflow.append(Teardown)
         return runflow
+
+
+class FailCaseAgainRun(object):
+
+    def __init__(self, script_files, json_file):
+        self.script_files = script_files
+        self.json_file = json_file
+        self.fail_case_list = self.__load_fail_case_from_json()
+       
+
+    def __get_script_file_mod(self, moduname):
+        for file in self.script_files:
+            if moduname in file and file.endswith('.py'):
+                return file, importlib.import_module(file.replace('.py',''))
+
+
+    def __load_fail_case_from_json(self):
+        fail_case_list = []
+        with open(self.json_file , "rb") as fb:
+            self.data = json.load(fb)
+
+        for item in self.data['ModuleData']:
+            if item['FailCase']:
+                fail_case_list.append((item['ModuleName'],item['FailCase']))
+        return fail_case_list
+
+    def get_fail_case_again_run_lists(self):
+        '''
+        '''
+        run_lists = []
+        for moduname, fail_cases in self.fail_case_list:
+            case_list = []
+            file, mod = self.__get_script_file_mod(moduname)
+            for item in mod.case_list:
+                if item[0] in fail_cases:
+                    case_list.append((item[0],item[1],fail_cases[item[0]],item[3],item[4]))
+            ttim = sum([item[2] for item in case_list])
+            run_list = StabilityTestTemplate(case_list, mod.setup, mod.teardown)
+            run_lists.append((file, mod, moduname, ttim, run_list))
+
+        return run_lists
+
 
 class CompareUIObjectInfo(object):
     '''

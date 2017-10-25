@@ -7,7 +7,7 @@
 #   Content:     Flow Object
 ##############################
 
-__all__ = ["FOR","SWITCH","SWITCH2","SWITCHWrapper","SWITCHWrapper2","WHILE",'NOT']
+__all__ = ["FOR","SWITCH","SWITCHWrapper","SWITCHWrapper2","WHILE",'NOT']
 
 class FOR(object):
     '''

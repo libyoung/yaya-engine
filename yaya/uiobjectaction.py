@@ -37,6 +37,7 @@ def __CheckExists__(obj):
     '''
     def __CheckExists_wrapper__(flow, uiobject, *arg, **kword):
         for i in xrange(6):
+            flow.dm.GetRunDevice.watchers.reset()
             if uiobject.wait.exists(timeout=PRE_CHECK_UIOBJECT_TIME_MSEC):
                 return obj(flow, uiobject, *arg)
             elif flow.dm.GetRunDevice.watchers.triggered:

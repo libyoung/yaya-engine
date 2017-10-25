@@ -45,6 +45,16 @@ def Passes(flow):
     if flow.share_que != None:
         flow.share_que.put({'modulename':flow.info['name'], 'suc_time': t, 'total':flow.info['ttim'], 'passrate': rate})
 
+def Failes(caseName):
+    '''
+    '''
+    def FailesWarpper(flow):
+        t = flow.log.Fail(caseName)
+        flow.log.GetLogger().info('#####################################')
+        flow.log.GetLogger().info('Trace Fail Loop %s', t)
+        flow.log.GetLogger().info('#####################################')
+    return FailesWarpper
+
 class Logger(object):
     '''
     '''
@@ -57,6 +67,8 @@ class Logger(object):
         self.log = self._GetLogInstace(info.get('lsos'))
         self.logadapter = logging.LoggerAdapter(self.log, {'devname':'MainFra'})
         self.success_times = 0
+        self.fail_times = 0
+        self.fail_cases = {}
 
     def _GetLogDir(self):
         """Get the path to the log folder."""
@@ -131,6 +143,14 @@ class Logger(object):
         self.success_times += 1
         return  self.success_times
 
+    def Fail(self, CaseName):
+        self.fail_times += 1
+        if self.fail_cases.get(CaseName):
+            self.fail_cases[CaseName] += 1 
+        else:
+            self.fail_cases[CaseName] = 1
+        return  self.fail_times
+
     def Start(self):
         self.starttime = self._datetime()
         self.TempLogAdapter(devname='MainFra').info("Start Run")
@@ -140,5 +160,5 @@ class Logger(object):
         self.TempLogAdapter(devname='MainFra').info("Finish Run")
         circle_time = self.finishtime[0] - self.starttime[0]
         #StrAnalysis(self.modulename, self.curr_loop[0], self._timediff(circle_time), str(total), str(self.success_times), flow.xmlfile).addDataToXML(flow.info['modu'])
-        LJson.AddModuleData(self.modulename, total, self.success_times, self._timediff(circle_time), self.curr_loop[0])
+        LJson.AddModuleData(self.modulename, total, self.success_times, self._timediff(circle_time),   self.fail_cases, self.curr_loop[0])
         LJson.JsonDumpToFile()

@@ -15,6 +15,7 @@ from yaya import Flow
 from yaya import xmlFileInit
 from yaya import LJson
 from yaya import write_data_to_xlsx_file
+from yaya import FailCaseAgainRun
 ########################
 # ini file Parser
 ########################
@@ -62,6 +63,7 @@ class CmdLineParser(object):
         self.parser.add_argument('-lsos', help='switch on/off the log stream output to system stdout, example : -lsos False')
         self.parser.add_argument('-estr', help='switch export Stability Test excel report from json file , example : -estr 201708132156465.json')
         self.parser.add_argument('-acmp', help='switch on/off ANR and Crash monitor precess , example : -acmp False')
+        self.parser.add_argument('-fcar', help='switch on/off Fail Case Again Run , example : -fcar 20170817105358_TestData.json')
 
     def parse(self, input):
         return self.parser.parse_args(input)
@@ -85,16 +87,9 @@ def get_script_file(modu,startmodu = None):
     return run_script_list[ind:]
 
 
-def run_script(info, que=None):
+def get_recover_info(info):
     '''
     '''
-    #xmlfile = xmlFileInit(sys.path[0])
-    #xmlfile.createXMLfile(info['modu'])
-    m_ANR_p = None
-    s_ANR_p = None
-    three_ANR_p = None
-    four_ANR_p = None
-
     recover_str = info.get('reco')
 
     if recover_str:
@@ -112,7 +107,58 @@ def run_script(info, que=None):
         reco_cricle = 0
         reco_modu = None
 
-    for i in xrange(reco_cricle,int(info['circ'])):
+    return (reco_cricle, reco_modu)
+
+
+def create_all_deveics_monitor_ANR_Crash_process(info):
+    m_ANR_p = None
+    s_ANR_p = None
+    three_ANR_p = None
+    four_ANR_p = None
+
+    if info['acmp']:
+        m_ANR_p = create_monitor_ANR_Crash_process(info['mdev'])
+        s_ANR_p = create_monitor_ANR_Crash_process(info['sdev'])
+        three_ANR_p = create_monitor_ANR_Crash_process(info['3dev'])
+        four_ANR_p = create_monitor_ANR_Crash_process(info['4dev'])
+
+    return (m_ANR_p, s_ANR_p, three_ANR_p, four_ANR_p)
+
+
+def run_script_for_fail_case(info, que=None):
+    '''
+    '''    
+    create_all_deveics_monitor_ANR_Crash_process(info)
+    
+    files = os.listdir(sys.path[0])
+
+    run_lists = FailCaseAgainRun(files, info.get('fcar')).get_fail_case_again_run_lists()
+
+    LJson.SetJsonFileName("Again_" + info.get('fcar'))
+    LJson.InitModuleData(info['modu'])
+
+    info['cuci'] = 1
+    for file, mod, moduname, ttim, run_list in run_lists:
+        info['name'] = moduname
+        info['mode'] = 'mini'
+        info['ttim'] = ttim
+        print "Run Script:%s, Test Total Times:%s" % (file,info['ttim'])
+        LJson.SetCurrRunData(ModuleName=info['name'], TotalTimes=info['ttim'], Cricle=info['cuci'], CaseName='', SucessTimes=0)
+        run_f = Flow(que, info['mdev'], info['sdev'], info['3dev'], runinfo = info)
+        run_f.Run(run_list)
+        if que != None:
+            que.put({'modulename':info['name'], 'status':'Finish'})
+        time.sleep(5)
+
+
+def run_script(info, que=None):
+    '''
+    '''
+    create_all_deveics_monitor_ANR_Crash_process(info)
+    
+    reco_cricle, reco_modu = get_recover_info(info)
+
+    for i in xrange(reco_cricle, int(info['circ'])):
         info['cuci'] = i+1 
         print "Run Circle: %s" % (i+1)
         for item in get_script_file(info['modu'],reco_modu):
@@ -128,18 +174,8 @@ def run_script(info, que=None):
                 #add xmlfile name ttim
                 LJson.SetCurrRunData(ModuleName=info['name'], TotalTimes=info['ttim'], Cricle=info['cuci'], CaseName='', SucessTimes=0)
                 run_f = Flow(que, info['mdev'], info['sdev'], info['3dev'], runinfo = info)
-
-                if info['acmp']:
-                    if m_ANR_p == None:
-                        m_ANR_p = create_monitor_ANR_Crash_process(info['mdev'])
-                    if s_ANR_p == None:
-                        s_ANR_p = create_monitor_ANR_Crash_process(info['sdev'])
-                    if three_ANR_p == None:
-                        three_ANR_p = create_monitor_ANR_Crash_process(info['3dev'])
-                    if four_ANR_p == None:
-                        four_ANR_p = create_monitor_ANR_Crash_process(info['4dev'])
-
                 run_f.Run(mod.run_list)
+
                 if que != None:
                     que.put({'modulename':info['name'], 'status':'Finish'})
                 time.sleep(5)
@@ -241,7 +277,7 @@ def get_run_info(**custom_info):
     info['exce'] = cfg_get('common.ini', 'Run Info', 'exce')
     info['lsos'] = cfg_get('common.ini', 'Run Info', 'lsos')
     info['acmp'] = cfg_get('common.ini', 'Run Info', 'acmp')
-    print info['acmp']
+
     #then, a part of run info data from commond line
     cmd_info = vars(CmdLineParser().parse(sys.argv[1:]))
     for item in cmd_info:
@@ -286,7 +322,10 @@ def main(**custom_info):
             probar_p.start()
             time.sleep(1)
 
-        run_script(info, share_que)
+        if info.get('fcar'):
+            run_script_for_fail_case(info, share_que)
+        else:
+            run_script(info, share_que)
 
     except Exception:
         print "main"
